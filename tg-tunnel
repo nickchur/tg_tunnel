@@ -1,0 +1,12 @@
+#!/bin/sh
+# Перенесён 03.10.2026 с Хельсинки на GCP tgproxy: выход семейного прокси (стенд) теперь отсюда.
+# Обратный SOCKS для mtg на стенде: стенд 127.0.0.1:1080 → выход в интернет отсюда (GCP us-east1).
+exec 9>"$HOME/.local/state/tg-tunnel.lock"
+flock -n 9 || exit 0
+while :; do
+  ssh -N -R 127.0.0.1:1080 testsrv -o BatchMode=yes -o ServerAliveInterval=15 \
+      -o ServerAliveCountMax=3 -o ExitOnForwardFailure=yes
+  rc=$?
+  echo "$(date -Is) ssh exited rc=$rc"
+  sleep 5
+done
